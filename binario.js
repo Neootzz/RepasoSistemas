@@ -33,8 +33,53 @@
   const formatDecimal = (number) => Number(number.toFixed(8)).toString().replace(".", ",");
 
   function verticalBinaryProblem(a, b, operator) {
-    const width = Math.max(a.length, b.length);
-    return "  " + a + "₂\n" + operator + " " + b + "₂\n" + "─".repeat(width + 2) + "\n  ?₂";
+    return { left: a, right: b, operator };
+  }
+
+  function renderProblem(exercise) {
+    problemBox.replaceChildren();
+    problemBox.classList.toggle("problem-box-operation", Boolean(exercise.verticalOperation));
+    if (!exercise.verticalOperation) {
+      problemBox.textContent = exercise.problem;
+      return;
+    }
+
+    const { left, right, operator } = exercise.verticalOperation;
+    const operation = document.createElement("div");
+    operation.className = "vertical-operation";
+    operation.style.setProperty("--bit-count", String(Math.max(left.length, right.length)));
+    operation.setAttribute("role", "img");
+    operation.setAttribute("aria-label", left + " " + (operator === "+" ? "más" : "menos") + " " + right + ", resultado por calcular");
+
+    const addCell = (value, row, column, className) => {
+      const cell = document.createElement("span");
+      cell.className = className;
+      cell.textContent = value;
+      cell.style.gridRow = String(row);
+      cell.style.gridColumn = String(column);
+      operation.appendChild(cell);
+    };
+
+    const bitCount = Math.max(left.length, right.length);
+    const paddedLeft = left.padStart(bitCount, "0");
+    const paddedRight = right.padStart(bitCount, "0");
+    paddedLeft.split("").forEach((bit, index) => addCell(bit, 1, index + 2, "operation-bit"));
+    addCell(operator, 2, 1, "operation-sign");
+    paddedRight.split("").forEach((bit, index) => addCell(bit, 2, index + 2, "operation-bit"));
+
+    const rule = document.createElement("span");
+    rule.className = "operation-rule";
+    rule.style.gridRow = "3";
+    rule.style.gridColumn = "2 / -1";
+    operation.appendChild(rule);
+
+    const question = document.createElement("span");
+    question.className = "operation-question";
+    question.textContent = "?";
+    question.style.gridRow = "4";
+    question.style.gridColumn = "2 / -1";
+    operation.appendChild(question);
+    problemBox.appendChild(operation);
   }
 
   function cleanInput(value) {
@@ -213,7 +258,7 @@
         return {
           type: "ARITMÉTICA · SUMA BINARIA",
           title: "Suma las dos secuencias",
-          problem: verticalBinaryProblem(bitsA, bitsB, "+"),
+          verticalOperation: verticalBinaryProblem(bitsA, bitsB, "+"),
           answer: result.bits,
           mode: "binary",
           cheatType: "addition",
@@ -228,7 +273,7 @@
       return {
         type: "ARITMÉTICA · RESTA BINARIA",
         title: "Resuelve la resta directa",
-        problem: verticalBinaryProblem(toBits(minuend, width), toBits(subtrahend, width), "−"),
+        verticalOperation: verticalBinaryProblem(toBits(minuend, width), toBits(subtrahend, width), "−"),
         answer: resultBits,
         mode: "binary",
         cheatType: "subtraction",
@@ -255,7 +300,7 @@
         return {
           type: "ARITMÉTICA · RESTA NORMAL",
           title: "Resuelve la resta binaria",
-          problem: verticalBinaryProblem(toBits(minuend, width), toBits(subtrahend, width), "−"),
+          verticalOperation: verticalBinaryProblem(toBits(minuend, width), toBits(subtrahend, width), "−"),
           answer,
           mode: "binary",
           cheatType: "subtraction",
@@ -270,7 +315,7 @@
       return {
         type: "RESTA · " + (method === "C1" ? "COMPLEMENTO A 1" : "COMPLEMENTO A 2"),
         title: "Resta usando " + (method === "C1" ? "complemento a 1" : "complemento a 2"),
-        problem: verticalBinaryProblem(toBits(a, width), toBits(b, width), "−"),
+        verticalOperation: verticalBinaryProblem(toBits(a, width), toBits(b, width), "−"),
         answer: result.bits,
         mode: "binary",
         cheatType: method,
@@ -683,7 +728,7 @@
     exerciseType.textContent = currentExercise.type;
     exerciseCounter.textContent = "RETO " + exerciseNumber;
     exerciseTitle.textContent = currentExercise.title;
-    problemBox.textContent = currentExercise.problem;
+    renderProblem(currentExercise);
     renderBitPositionPanel(currentExercise.bitPanel);
     renderExerciseCheat(currentExercise);
     exerciseTip.textContent = currentExercise.tip;
