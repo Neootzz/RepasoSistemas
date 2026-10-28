@@ -32,6 +32,11 @@
   const binaryValue = (bits) => parseInt(bits, 2);
   const formatDecimal = (number) => Number(number.toFixed(8)).toString().replace(".", ",");
 
+  function verticalBinaryProblem(a, b, operator) {
+    const width = Math.max(a.length, b.length);
+    return "  " + a + "₂\n" + operator + " " + b + "₂\n" + "─".repeat(width + 2) + "\n  ?₂";
+  }
+
   function cleanInput(value) {
     return value.trim()
       .replace(/[₂₁₀]/g, "")
@@ -41,7 +46,7 @@
   }
 
   function cleanBinary(value) {
-    return cleanInput(value).replace(/_/g, "").replace(/^0+(?=[01])/, "");
+    return cleanInput(value).replace(/_/g, "").replace(/^(-?)0+(?=[01])/, "$1");
   }
 
   function binaryFractionToDecimal(bits) {
@@ -86,10 +91,16 @@
     let finalBits;
     let explanation;
 
+    const resultValue = binaryValue(a) - binaryValue(b);
+
     if (method === "C1") {
       const inverse = toBits(mask ^ binaryValue(b), width);
       rawSum = binaryValue(a) + binaryValue(inverse);
-      if (rawSum >= Math.pow(2, width)) {
+      if (resultValue === 0) {
+        finalBits = toBits(0, width);
+        explanation = "C1 de B: " + inverse + ". La suma da " + toBits(rawSum, width) +
+          " (cero negativo en C1); se normaliza como cero positivo: " + finalBits + ".";
+      } else if (rawSum >= Math.pow(2, width)) {
         finalBits = toBits((rawSum & mask) + 1, width);
         explanation = "C1 de B: " + inverse + ". Suma A + C1(B) = " + rawSum.toString(2) +
           " (acarreo final). Reincorpora el acarreo: resultado " + finalBits + ".";
@@ -108,9 +119,7 @@
         ". Suma A + C2(B) y descarta el acarreo final: resultado " + finalBits + ".";
     }
 
-    const resultValue = binaryValue(a) - binaryValue(b);
-    const signedMeaning = resultValue < 0 ? resultValue : resultValue;
-    return { bits: finalBits, value: signedMeaning, explanation };
+    return { bits: finalBits, value: resultValue, explanation };
   }
 
   function pickType(category) {
@@ -204,7 +213,7 @@
         return {
           type: "ARITMÉTICA · SUMA BINARIA",
           title: "Suma las dos secuencias",
-          problem: bitsA + "₂ + " + bitsB + "₂ = ?₂",
+          problem: verticalBinaryProblem(bitsA, bitsB, "+"),
           answer: result.bits,
           mode: "binary",
           cheatType: "addition",
@@ -219,7 +228,7 @@
       return {
         type: "ARITMÉTICA · RESTA BINARIA",
         title: "Resuelve la resta directa",
-        problem: toBits(minuend, width) + "₂ − " + toBits(subtrahend, width) + "₂ = ?₂",
+        problem: verticalBinaryProblem(toBits(minuend, width), toBits(subtrahend, width), "−"),
         answer: resultBits,
         mode: "binary",
         cheatType: "subtraction",
@@ -231,11 +240,12 @@
     }
 
     if (category === "subtraction" || category === "complement" || category === "complement1" || category === "complement2") {
-      const a = randomInt(0, Math.pow(2, width) - 1);
-      const b = randomInt(0, Math.pow(2, width) - 1);
       const method = category === "subtraction" ? subtractionMethodSelect.value :
         category === "complement1" ? "C1" : category === "complement2" ? "C2" :
           Math.random() < 0.5 ? "C1" : "C2";
+      const operandMax = method === "normal" ? Math.pow(2, width) - 1 : Math.pow(2, width - 1) - 1;
+      const a = randomInt(0, operandMax);
+      const b = randomInt(0, operandMax);
 
       if (method === "normal") {
         const minuend = Math.random() < 0.5 ? a : b;
@@ -245,7 +255,7 @@
         return {
           type: "ARITMÉTICA · RESTA NORMAL",
           title: "Resuelve la resta binaria",
-          problem: toBits(minuend, width) + "₂ − " + toBits(subtrahend, width) + "₂ = ?₂",
+          problem: verticalBinaryProblem(toBits(minuend, width), toBits(subtrahend, width), "−"),
           answer,
           mode: "binary",
           cheatType: "subtraction",
@@ -260,7 +270,7 @@
       return {
         type: "RESTA · " + (method === "C1" ? "COMPLEMENTO A 1" : "COMPLEMENTO A 2"),
         title: "Resta usando " + (method === "C1" ? "complemento a 1" : "complemento a 2"),
-        problem: toBits(a, width) + "₂ − " + toBits(b, width) + "₂ = ?₂ (" + width + " bits)",
+        problem: verticalBinaryProblem(toBits(a, width), toBits(b, width), "−"),
         answer: result.bits,
         mode: "binary",
         cheatType: method,
