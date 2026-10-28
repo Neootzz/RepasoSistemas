@@ -94,6 +94,12 @@ details p { color: var(--muted); font-size: 11px; line-height: 1.7; margin: 11px
 .exercise-meta span:last-child { color: #8b95a7; }
 .exercise-card h3 { margin: 18px 0 13px; font-size: 19px; letter-spacing: -.03em; }
 .problem-box { min-height: 78px; background: #f7f7fc; border: 1px dashed #d9d8ec; border-radius: 12px; display: flex; align-items: center; justify-content: center; padding: 17px; color: #382d73; text-align: center; white-space: pre; font: 650 clamp(15px,2vw,21px)/1.6 ui-monospace, SFMono-Regular, Consolas, monospace; overflow-wrap: anywhere; }
+.problem-box-operation { white-space: normal; }
+.vertical-operation { display: grid; grid-template-columns: 24px repeat(var(--bit-count), minmax(23px, 34px)); grid-template-rows: repeat(4, minmax(29px, auto)); align-items: center; justify-content: center; width: max-content; max-width: 100%; color: #382d73; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: clamp(17px, 2.2vw, 22px); line-height: 1; font-variant-numeric: tabular-nums; }
+.operation-bit { display: grid; place-items: center; min-width: 0; height: 29px; }
+.operation-sign { display: grid; place-items: center; font-weight: 800; }
+.operation-rule { align-self: center; width: 100%; border-top: 2px solid currentColor; }
+.operation-question { text-align: center; font-weight: 750; }
 .problem-placeholder { color: #9ba3b2; font: 500 12px/1.5 ui-sans-serif, sans-serif; }
 .answer-row { display: grid; grid-template-columns: 1fr auto; gap: 9px; margin-top: 14px; }
 .answer-row input { font-size: 12px; }
@@ -162,6 +168,8 @@ footer span:first-child { color: #6451c6; font-weight: 850; }
   .exercise-meta { align-items: flex-start; font-size: 8px; letter-spacing: .07em; }
   .exercise-card h3 { font-size: clamp(17px, 5vw, 20px); }
   .problem-box { min-height: 68px; padding: 12px 9px; font-size: clamp(14px, 4.2vw, 18px); line-height: 1.45; }
+  .vertical-operation { grid-template-columns: 20px repeat(var(--bit-count), minmax(20px, 28px)); grid-template-rows: repeat(4, minmax(27px, auto)); font-size: 19px; }
+  .operation-bit { height: 27px; }
   .answer-row { grid-template-columns: minmax(0, 1fr); gap: 8px; }
   .answer-row input, .button-dark { min-height: 44px; }
   .button-dark { width: 100%; }
@@ -231,6 +239,7 @@ footer span:first-child { color: #6451c6; font-weight: 850; }
 :root[data-theme="dark"] .answer-row input::placeholder { color: #8693aa; }
 :root[data-theme="dark"] .formula, :root[data-theme="dark"] .problem-box { background: #1b263b; color: #e0e7f4; border-color: #39445d; }
 :root[data-theme="dark"] .problem-box { border-style: dashed; color: #c8baff; }
+:root[data-theme="dark"] .vertical-operation { color: #c8baff; }
 :root[data-theme="dark"] .problem-placeholder { color: #9aa7bd; }
 :root[data-theme="dark"] .truth-table th { color: #aab5c8; }
 :root[data-theme="dark"] .truth-table td { color: #c4cede; border-color: #263249; }
